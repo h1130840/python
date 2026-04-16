@@ -101,7 +101,7 @@ if st.session_state.is_running and st.session_state.time_left > 0:
 elif st.session_state.time_left == 0 and st.session_state.is_running:
     st.session_state.is_running = False
     st.balloons()
-    st.success(f"時間到！已專注 {mins} 分鐘。")
+    st.success(f"時間到！已專注 {input_mins} 分鐘。")
 
 # ==========================================
 # 卡片二：任務管理 
