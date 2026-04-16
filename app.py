@@ -108,13 +108,14 @@ with st.container(border=True):
     
     st.divider() # 加一條淡灰色的分隔線
     
-    # 2. 任務輸入區
+    # 2. 任務輸入區 (加入自動清空功能)
     col_in, col_btn = st.columns([4, 1], vertical_alignment="bottom")
-    new_task = col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增...", label_visibility="collapsed")
+    new_task = col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增...", label_visibility="collapsed", key="task_input_box")
     if col_btn.button("➕ 新增", type="primary", use_container_width=True):
         if new_task:
             st.session_state.tasks.append({"id": str(uuid.uuid4()), "name": new_task, "done": False})
             save_tasks(st.session_state.tasks)
+            st.session_state.task_input_box = "" # 清空輸入框
             st.rerun()
 
     st.write("") 
@@ -150,7 +151,7 @@ with st.container(border=True):
                     
     st.write("") 
     
-    # 4. 一鍵清除按鈕 
+    # 4. 一鍵清除按鈕 (移到任務管理的框框最下方)
     if st.button("🧹 一鍵清除所有已完成任務", use_container_width=True):
         st.session_state.tasks = [t for t in st.session_state.tasks if not t['done']]
         save_tasks(st.session_state.tasks)
