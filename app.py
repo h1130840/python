@@ -81,7 +81,7 @@ with st.container(border=True):
             st.session_state.is_running = True
         if c2.button("⏸️ 暫停", use_container_width=True): 
             st.session_state.is_running = False
-        if st.button("🔄 重置時間", use_container_width=True):
+        if st.button("🔄 重置", use_container_width=True):
             st.session_state.is_running = False
             st.session_state.time_left = input_mins * 60
             st.rerun()
@@ -101,7 +101,7 @@ if st.session_state.is_running and st.session_state.time_left > 0:
 elif st.session_state.time_left == 0 and st.session_state.is_running:
     st.session_state.is_running = False
     st.balloons()
-    st.success("🎉 時間到！休息一下吧！")
+    st.success(f"時間到！已專注{mins}分鐘")
 
 # ==========================================
 # 卡片二：任務管理 
@@ -121,7 +121,7 @@ with st.container(border=True):
     # 2. 任務輸入區 (透過 on_change 與 on_click 觸發回調函數)
     col_in, col_btn = st.columns([4, 1], vertical_alignment="bottom")
     # on_change 讓你可以輸入完直接按鍵盤的 Enter 就新增
-    col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增或按 Enter...", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
+    col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
     # on_click 讓點擊按鈕時觸發新增
     col_btn.button("➕ 新增", type="primary", use_container_width=True, on_click=add_new_task)
 
