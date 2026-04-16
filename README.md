@@ -21,4 +21,4 @@
 ## 線上體驗專區
 
 本專案已經成功部署於雲端伺服器！
-👉 **[點擊這裡立即體驗我的網頁](這裡未來可以貼上你的_Streamlit_網址)*
+👉 **[點擊這裡立即體驗我的網頁](https://python-hzqbnr4lfgnsvb5rfkjnka.streamlit.app/)*
