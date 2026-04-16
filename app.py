@@ -23,17 +23,27 @@ def save_tasks(tasks):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(tasks, f, ensure_ascii=False, indent=4)
 
+# --- 💡 修正核心：新增「回調函數 (Callback)」來處理新增與清空 ---
+def add_new_task():
+    # 檢查輸入框裡有沒有字
+    if st.session_state.task_input_box: 
+        st.session_state.tasks.append({
+            "id": str(uuid.uuid4()), 
+            "name": st.session_state.task_input_box, 
+            "done": False
+        })
+        save_tasks(st.session_state.tasks)
+        # 在回調函數裡面清空輸入框，就不會報錯了！
+        st.session_state.task_input_box = "" 
+
 # --- 2. 網頁與樣式配置 ---
 st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="centered")
 
-# 只保留必要的乾淨 CSS (隱藏預設選單與優化卡片)
 st.markdown("""
 <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    
-    /* 讓上方數據指標置中對齊，看起來更整齊 */
     div[data-testid="metric-container"] {
         text-align: center;
     }
@@ -47,6 +57,9 @@ if 'time_left' not in st.session_state:
     st.session_state.time_left = 25 * 60
 if 'is_running' not in st.session_state:
     st.session_state.is_running = False
+# 必須先初始化輸入框的狀態，避免第一次載入時報錯
+if 'task_input_box' not in st.session_state:
+    st.session_state.task_input_box = ""
 
 st.title("🍅 番茄鐘專注看板")
 
@@ -64,7 +77,6 @@ with st.container(border=True):
             st.session_state.time_left = input_mins * 60
         
         c1, c2 = st.columns(2)
-        # 使用 type="primary" 讓開始按鈕自動凸顯
         if c1.button("▶️ 開始", type="primary", use_container_width=True): 
             st.session_state.is_running = True
         if c2.button("⏸️ 暫停", use_container_width=True): 
@@ -82,7 +94,6 @@ with st.container(border=True):
     current_progress = 1.0 - (st.session_state.time_left / total_sec) if total_sec > 0 else 0.0
     st.progress(min(max(current_progress, 0.0), 1.0))
 
-# 計時器運作邏輯
 if st.session_state.is_running and st.session_state.time_left > 0:
     time.sleep(1)
     st.session_state.time_left -= 1
@@ -93,12 +104,11 @@ elif st.session_state.time_left == 0 and st.session_state.is_running:
     st.success("🎉 時間到！休息一下吧！")
 
 # ==========================================
-# 卡片二：任務管理 (包含數據、輸入、列表、清除)
+# 卡片二：任務管理 
 # ==========================================
 with st.container(border=True):
     st.subheader("📝 任務管理")
     
-    # 1. 任務數據 (移到任務管理最上方)
     done_count = sum(1 for t in st.session_state.tasks if t['done'])
     total_count = len(st.session_state.tasks)
     m1, m2, m3 = st.columns(3)
@@ -106,17 +116,14 @@ with st.container(border=True):
     m2.metric("已完成", done_count)
     m3.metric("達成率", f"{int(done_count/total_count*100) if total_count>0 else 0}%")
     
-    st.divider() # 加一條淡灰色的分隔線
+    st.divider() 
     
-    # 2. 任務輸入區 (加入自動清空功能)
+    # 2. 任務輸入區 (透過 on_change 與 on_click 觸發回調函數)
     col_in, col_btn = st.columns([4, 1], vertical_alignment="bottom")
-    new_task = col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增...", label_visibility="collapsed", key="task_input_box")
-    if col_btn.button("➕ 新增", type="primary", use_container_width=True):
-        if new_task:
-            st.session_state.tasks.append({"id": str(uuid.uuid4()), "name": new_task, "done": False})
-            save_tasks(st.session_state.tasks)
-            st.session_state.task_input_box = "" # 清空輸入框
-            st.rerun()
+    # on_change 讓你可以輸入完直接按鍵盤的 Enter 就新增
+    col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增或按 Enter...", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
+    # on_click 讓點擊按鈕時觸發新增
+    col_btn.button("➕ 新增", type="primary", use_container_width=True, on_click=add_new_task)
 
     st.write("") 
     
@@ -151,7 +158,7 @@ with st.container(border=True):
                     
     st.write("") 
     
-    # 4. 一鍵清除按鈕 (移到任務管理的框框最下方)
+    # 4. 一鍵清除按鈕
     if st.button("🧹 一鍵清除所有已完成任務", use_container_width=True):
         st.session_state.tasks = [t for t in st.session_state.tasks if not t['done']]
         save_tasks(st.session_state.tasks)
