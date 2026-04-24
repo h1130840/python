@@ -33,8 +33,9 @@ def add_new_task():
         save_tasks(st.session_state.tasks)
         st.session_state.task_input_box = "" 
 
-# --- 2. 網頁與樣式配置 (深海極光 + 毛玻璃科技風) ---
-st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="centered")
+# --- 2. 網頁與樣式配置 (深海極光 + 寬螢幕模式) ---
+# 注意這裡改成 layout="wide" 讓左右分欄有足夠空間
+st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="wide")
 
 st.markdown("""
 <style>
@@ -48,7 +49,7 @@ st.markdown("""
         background: linear-gradient(135deg, #0B101E 0%, #1B1833 50%, #0F172A 100%);
     }
 
-    /* 強制修改所有文字為淺色，確保在深色背景上清晰，覆蓋 Streamlit 預設 */
+    /* 強制修改所有文字為淺色 */
     .stApp p, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp label, .stApp span {
         color: #F8FAFC !important;
     }
@@ -61,6 +62,7 @@ st.markdown("""
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
         backdrop-filter: blur(12px);
         padding: 10px;
+        height: 100%; /* 讓左右兩邊卡片高度盡量一致 */
     }
 
     /* 3. 數據指標 (Metric) 精緻化 */
@@ -72,14 +74,14 @@ st.markdown("""
         text-align: center;
     }
     div[data-testid="metric-container"] label {
-        color: #94A3B8 !important; /* 標題稍微暗一點增加層次 */
+        color: #94A3B8 !important; 
     }
     div[data-testid="metric-container"] div {
-        color: #38BDF8 !important; /* 數字使用科技藍 */
+        color: #38BDF8 !important; 
         font-weight: 800;
     }
 
-    /* 4. 一般按鈕樣式：半透明與懸浮發光 */
+    /* 4. 一般按鈕樣式 */
     .stButton > button {
         background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -94,7 +96,7 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
-    /* 5. 主按鈕 (Primary) 樣式：彩色漸層 */
+    /* 5. 主按鈕 (Primary) 樣式 */
     .stButton > button[data-testid="baseButton-primary"] {
         background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%) !important;
         border: none !important;
@@ -106,10 +108,10 @@ st.markdown("""
         filter: brightness(1.1);
     }
 
-    /* 6. 番茄鐘大數字：漸層文字與柔和陰影 */
+    /* 6. 番茄鐘大數字：因為分左右，稍微縮小一點避免破版 */
     .premium-timer {
         text-align: center;
-        font-size: 110px;
+        font-size: 90px;
         font-weight: 800;
         background: linear-gradient(to right, #38BDF8, #818CF8, #C084FC);
         -webkit-background-clip: text;
@@ -150,37 +152,104 @@ if 'task_input_box' not in st.session_state:
 st.title("🍅 番茄鐘專注看板")
 
 # ==========================================
-# 卡片一：番茄鐘計時器
+# 建立左右兩大欄位 (使用 gap="large" 讓中間有呼吸空間)
 # ==========================================
-with st.container(border=True):
-    st.subheader("⏱️ 專注計時")
-    
-    col_ctrl, col_timer = st.columns([1, 2], vertical_alignment="center")
-    
-    with col_ctrl:
-        input_mins = st.number_input("設定分鐘", min_value=1, value=25)
-        if not st.session_state.is_running and st.session_state.time_left != input_mins * 60:
-            st.session_state.time_left = input_mins * 60
-        
-        c1, c2 = st.columns(2)
-        if c1.button("▶️ 開始", type="primary", use_container_width=True): 
-            st.session_state.is_running = True
-        if c2.button("⏸️ 暫停", use_container_width=True): 
-            st.session_state.is_running = False
-        if st.button("🔄 重置", use_container_width=True):
-            st.session_state.is_running = False
-            st.session_state.time_left = input_mins * 60
-            st.rerun()
+col_left, col_right = st.columns(2, gap="large")
 
-    with col_timer:
-        mm, ss = divmod(st.session_state.time_left, 60)
-        # 換上我們特別設計的 premium-timer 樣式
-        st.markdown(f"<div class='premium-timer'>{mm:02d}:{ss:02d}</div>", unsafe_allow_html=True)
+# ==========================================
+# 左半邊：番茄鐘計時器
+# ==========================================
+with col_left:
+    with st.container(border=True):
+        st.subheader("⏱️ 專注計時")
         
-    total_sec = input_mins * 60
-    current_progress = 1.0 - (st.session_state.time_left / total_sec) if total_sec > 0 else 0.0
-    st.progress(min(max(current_progress, 0.0), 1.0))
+        col_ctrl, col_timer = st.columns([1, 2], vertical_alignment="center")
+        
+        with col_ctrl:
+            input_mins = st.number_input("設定分鐘", min_value=1, value=25)
+            if not st.session_state.is_running and st.session_state.time_left != input_mins * 60:
+                st.session_state.time_left = input_mins * 60
+            
+            c1, c2 = st.columns(2)
+            if c1.button("▶️ 開始", type="primary", use_container_width=True): 
+                st.session_state.is_running = True
+            if c2.button("⏸️ 暫停", use_container_width=True): 
+                st.session_state.is_running = False
+            if st.button("🔄 重置", use_container_width=True):
+                st.session_state.is_running = False
+                st.session_state.time_left = input_mins * 60
+                st.rerun()
 
+        with col_timer:
+            mm, ss = divmod(st.session_state.time_left, 60)
+            st.markdown(f"<div class='premium-timer'>{mm:02d}:{ss:02d}</div>", unsafe_allow_html=True)
+            
+        total_sec = input_mins * 60
+        current_progress = 1.0 - (st.session_state.time_left / total_sec) if total_sec > 0 else 0.0
+        st.progress(min(max(current_progress, 0.0), 1.0))
+
+        # 為了排版美觀，若計時器這邊比較短，可以塞一點空白讓它對齊右邊的高度
+        st.write("")
+        st.write("")
+
+# ==========================================
+# 右半邊：任務管理 
+# ==========================================
+with col_right:
+    with st.container(border=True):
+        st.subheader("📝 任務管理")
+        
+        done_count = sum(1 for t in st.session_state.tasks if t['done'])
+        total_count = len(st.session_state.tasks)
+        m1, m2, m3 = st.columns(3)
+        m1.metric("今日任務", total_count)
+        m2.metric("已完成", done_count)
+        m3.metric("達成率", f"{int(done_count/total_count*100) if total_count>0 else 0}%")
+        
+        st.divider() 
+        
+        col_in, col_btn = st.columns([4, 1], vertical_alignment="bottom")
+        col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
+        col_btn.button("➕ 新增", type="primary", use_container_width=True, on_click=add_new_task)
+
+        st.write("") 
+        
+        col_pending, col_completed = st.columns(2)
+        
+        with col_pending:
+            st.markdown("#### ⏳ 進行中")
+            for i, task in enumerate(st.session_state.tasks):
+                if not task['done']:
+                    ic1, ic2 = st.columns([0.2, 0.8], vertical_alignment="center")
+                    if ic1.checkbox("", value=False, key=f"chk_{task['id']}"):
+                        st.session_state.tasks[i]['done'] = True
+                        save_tasks(st.session_state.tasks)
+                        st.rerun()
+                    ic2.write(task['name'])
+
+        with col_completed:
+            st.markdown("#### ✅ 已完成")
+            for i, task in enumerate(st.session_state.tasks):
+                if task['done']:
+                    ic1, ic2, ic3 = st.columns([0.15, 0.65, 0.2], vertical_alignment="center")
+                    if not ic1.checkbox("", value=True, key=f"chk_{task['id']}"):
+                        st.session_state.tasks[i]['done'] = False
+                        save_tasks(st.session_state.tasks)
+                        st.rerun()
+                    ic2.write(f"<span style='color: #888 !important;'>{task['name']}</span>", unsafe_allow_html=True)
+                    if ic3.button("🗑️", key=f"del_{task['id']}"):
+                        st.session_state.tasks = [t for t in st.session_state.tasks if t['id'] != task['id']]
+                        save_tasks(st.session_state.tasks)
+                        st.rerun()
+                        
+        st.write("") 
+        
+        if st.button("🧹 一鍵清除所有已完成任務", use_container_width=True):
+            st.session_state.tasks = [t for t in st.session_state.tasks if not t['done']]
+            save_tasks(st.session_state.tasks)
+            st.rerun() 
+
+# 倒數計時邏輯維持放在最後面
 if st.session_state.is_running and st.session_state.time_left > 0:
     time.sleep(1)
     st.session_state.time_left -= 1
@@ -189,60 +258,3 @@ elif st.session_state.time_left == 0 and st.session_state.is_running:
     st.session_state.is_running = False
     st.balloons()
     st.success(f"時間到！已專注 {input_mins} 分鐘。")
-
-# ==========================================
-# 卡片二：任務管理 
-# ==========================================
-with st.container(border=True):
-    st.subheader("📝 任務管理")
-    
-    done_count = sum(1 for t in st.session_state.tasks if t['done'])
-    total_count = len(st.session_state.tasks)
-    m1, m2, m3 = st.columns(3)
-    m1.metric("今日任務", total_count)
-    m2.metric("已完成", done_count)
-    m3.metric("達成率", f"{int(done_count/total_count*100) if total_count>0 else 0}%")
-    
-    st.divider() 
-    
-    col_in, col_btn = st.columns([4, 1], vertical_alignment="bottom")
-    col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
-    col_btn.button("➕ 新增", type="primary", use_container_width=True, on_click=add_new_task)
-
-    st.write("") 
-    
-    col_pending, col_completed = st.columns(2)
-    
-    with col_pending:
-        st.markdown("#### ⏳ 進行中")
-        for i, task in enumerate(st.session_state.tasks):
-            if not task['done']:
-                ic1, ic2 = st.columns([0.2, 0.8], vertical_alignment="center")
-                if ic1.checkbox("", value=False, key=f"chk_{task['id']}"):
-                    st.session_state.tasks[i]['done'] = True
-                    save_tasks(st.session_state.tasks)
-                    st.rerun()
-                ic2.write(task['name'])
-
-    with col_completed:
-        st.markdown("#### ✅ 已完成")
-        for i, task in enumerate(st.session_state.tasks):
-            if task['done']:
-                ic1, ic2, ic3 = st.columns([0.15, 0.65, 0.2], vertical_alignment="center")
-                if not ic1.checkbox("", value=True, key=f"chk_{task['id']}"):
-                    st.session_state.tasks[i]['done'] = False
-                    save_tasks(st.session_state.tasks)
-                    st.rerun()
-                # 保留你原本設定的 #888，並透過 CSS 強制讓它在暗色背景下也能呈現灰底效果
-                ic2.write(f"<span style='color: #888 !important;'>{task['name']}</span>", unsafe_allow_html=True)
-                if ic3.button("🗑️", key=f"del_{task['id']}"):
-                    st.session_state.tasks = [t for t in st.session_state.tasks if t['id'] != task['id']]
-                    save_tasks(st.session_state.tasks)
-                    st.rerun()
-                    
-    st.write("") 
-    
-    if st.button("🧹 一鍵清除所有已完成任務", use_container_width=True):
-        st.session_state.tasks = [t for t in st.session_state.tasks if not t['done']]
-        save_tasks(st.session_state.tasks)
-        st.rerun()
