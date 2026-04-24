@@ -1,13 +1,6 @@
 [theme]
-# 科技感暗黑主題
 base = "dark"
-# 主要顏色 (例如：霓虹藍色，用在進度條、勾選框)
 primaryColor = "#00e5ff"
-# 網頁背景色 (極深的星空黑)
 backgroundColor = "#0b0f19"
-# 區塊背景色 (稍微淺一點的深色，增加層次)
 secondaryBackgroundColor = "#151b2b"
-# 文字顏色 (銀灰色，比純白看起來更高級)
 textColor = "#e2e8f0"
-# 字體風格 (等寬字體很有寫程式或駭客介面的感覺)
-font = "monospace"
