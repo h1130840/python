@@ -32,11 +32,11 @@ def add_new_task():
             "done": False
         })
         save_tasks(st.session_state.tasks)
-        # 在回調函數裡面清空輸入框
+        # 在回調函數裡面清空輸入框，就不會報錯了！
         st.session_state.task_input_box = "" 
 
-# --- 2. 網頁與樣式配置 (注入科技感 CSS) ---
-st.set_page_config(page_title="番茄鐘控制台", page_icon="⏱️", layout="centered")
+# --- 2. 網頁與樣式配置 (極簡高級感 CSS) ---
+st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="centered")
 
 st.markdown("""
 <style>
@@ -45,51 +45,78 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
+    /* 改變整個背景顏色為極淺的灰白，襯托卡片質感 */
+    .stApp {
+        background-color: #F9FAFB;
+    }
+
+    /* 數據指標 (Metric) 卡片化 */
     div[data-testid="metric-container"] {
         text-align: center;
-    }
-
-    /* --- 科技感核心 CSS --- */
-    
-    /* 1. 讓卡片邊框有微發光感 */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1px solid rgba(0, 229, 255, 0.3) !important;
-        box-shadow: 0 4px 20px rgba(0, 229, 255, 0.05);
+        background-color: #ffffff;
+        border: 1px solid #F3F4F6;
         border-radius: 12px;
-        background-color: rgba(21, 27, 43, 0.7); /* 微透明玻璃感 */
-        backdrop-filter: blur(10px);
+        padding: 15px 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    /* 2. 改造按鈕：預設狀態與 Hover 懸浮特效 */
-    .stButton > button {
-        background-color: transparent !important;
-        border: 1px solid #00e5ff !important;
-        color: #00e5ff !important;
-        transition: all 0.3s ease-in-out;
-    }
-    
-    .stButton > button:hover {
-        box-shadow: 0 0 15px rgba(0, 229, 255, 0.6) !important;
-        background-color: rgba(0, 229, 255, 0.1) !important;
-        transform: translateY(-2px);
-    }
-
-    /* 3. 改造「主按鈕」(Primary Button) */
-    .stButton > button[data-testid="baseButton-primary"] {
-        background-color: #00e5ff !important;
-        color: #0b0f19 !important;
+    /* 核心區塊卡片化 (圓角與柔和陰影) */
+    [data-testid="stVerticalBlockBorderWrapper"] {
         border: none !important;
-        font-weight: bold;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+        border-radius: 24px !important;
+        background-color: #ffffff;
+        padding: 10px;
+    }
+
+    /* 一般按鈕的精緻化 */
+    .stButton > button {
+        border-radius: 12px !important;
+        border: 1px solid #E5E7EB !important;
+        background-color: #ffffff !important;
+        color: #374151 !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease;
+    }
+    .stButton > button:hover {
+        border-color: #D1D5DB !important;
+        background-color: #F9FAFB !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    /* 主按鈕 (Primary) 的現代感 */
+    .stButton > button[data-testid="baseButton-primary"] {
+        background-color: #2563EB !important; /* 柔和的科技藍 */
+        color: #ffffff !important;
+        border: none !important;
     }
     .stButton > button[data-testid="baseButton-primary"]:hover {
-        box-shadow: 0 0 20px rgba(0, 229, 255, 0.8) !important;
-        background-color: #33eeff !important;
+        background-color: #1D4ED8 !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
     }
 
-    /* 4. 番茄鐘大數字特效 */
-    h1 {
-        text-shadow: 0 0 15px rgba(0, 229, 255, 0.5); /* 霓虹光暈 */
-        letter-spacing: 2px;
+    /* 番茄鐘大數字排版 (乾淨俐落) */
+    .premium-timer {
+        text-align: center;
+        font-size: 100px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: -2px;
+        line-height: 1.2;
+    }
+    
+    /* 進度條顏色覆蓋 */
+    .stProgress > div > div > div > div {
+        background-color: #2563EB;
+    }
+    
+    /* 輸入框圓角 */
+    .stTextInput > div > div > input {
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -104,13 +131,13 @@ if 'is_running' not in st.session_state:
 if 'task_input_box' not in st.session_state:
     st.session_state.task_input_box = ""
 
-st.title("⏱️ 專注控制台")
+st.title("🍅 番茄鐘專注看板")
 
 # ==========================================
 # 卡片一：番茄鐘計時器
 # ==========================================
 with st.container(border=True):
-    st.subheader("⚡ 核心計時")
+    st.subheader("⏱️ 專注計時")
     
     col_ctrl, col_timer = st.columns([1, 2], vertical_alignment="center")
     
@@ -131,8 +158,8 @@ with st.container(border=True):
 
     with col_timer:
         mm, ss = divmod(st.session_state.time_left, 60)
-        # 移除了原本的 color: #333，讓它適應暗黑模式與 CSS 發光特效
-        st.markdown(f"<h1 style='text-align: center; font-size: 100px; margin: 0;'>{mm:02d}:{ss:02d}</h1>", unsafe_allow_html=True)
+        # 套用新的 premium-timer 樣式
+        st.markdown(f"<div class='premium-timer'>{mm:02d}:{ss:02d}</div>", unsafe_allow_html=True)
         
     total_sec = input_mins * 60
     current_progress = 1.0 - (st.session_state.time_left / total_sec) if total_sec > 0 else 0.0
@@ -151,7 +178,7 @@ elif st.session_state.time_left == 0 and st.session_state.is_running:
 # 卡片二：任務管理 
 # ==========================================
 with st.container(border=True):
-    st.subheader("📋 任務清單")
+    st.subheader("📝 任務管理")
     
     done_count = sum(1 for t in st.session_state.tasks if t['done'])
     total_count = len(st.session_state.tasks)
@@ -163,7 +190,7 @@ with st.container(border=True):
     st.divider() 
     
     col_in, col_btn = st.columns([4, 1], vertical_alignment="bottom")
-    col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增或按 Enter", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
+    col_in.text_input("新增待辦事項", placeholder="輸入後點擊新增", label_visibility="collapsed", key="task_input_box", on_change=add_new_task)
     col_btn.button("➕ 新增", type="primary", use_container_width=True, on_click=add_new_task)
 
     st.write("") 
@@ -190,8 +217,7 @@ with st.container(border=True):
                     st.session_state.tasks[i]['done'] = False
                     save_tasks(st.session_state.tasks)
                     st.rerun()
-                # 已完成任務改為稍暗的顏色 #64748b (Slate 500)，在暗黑模式下更好看
-                ic2.write(f"<span style='color: #64748b;'>{task['name']}</span>", unsafe_allow_html=True)
+                ic2.write(f"<span style='color: #888;'>{task['name']}</span>", unsafe_allow_html=True)
                 if ic3.button("🗑️", key=f"del_{task['id']}"):
                     st.session_state.tasks = [t for t in st.session_state.tasks if t['id'] != task['id']]
                     save_tasks(st.session_state.tasks)
