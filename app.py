@@ -24,7 +24,6 @@ def save_tasks(tasks):
         json.dump(tasks, f, ensure_ascii=False, indent=4)
 
 def add_new_task():
-    # 檢查輸入框裡有沒有字
     if st.session_state.task_input_box: 
         st.session_state.tasks.append({
             "id": str(uuid.uuid4()), 
@@ -32,10 +31,9 @@ def add_new_task():
             "done": False
         })
         save_tasks(st.session_state.tasks)
-        # 在回調函數裡面清空輸入框，就不會報錯了！
         st.session_state.task_input_box = "" 
 
-# --- 2. 網頁與樣式配置 (極簡高級感 CSS) ---
+# --- 2. 網頁與樣式配置 (深海極光 + 毛玻璃科技風) ---
 st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="centered")
 
 st.markdown("""
@@ -45,78 +43,96 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* 改變整個背景顏色為極淺的灰白，襯托卡片質感 */
+    /* 1. 整個網頁背景：深海極光漸層色 */
     .stApp {
-        background-color: #F9FAFB;
+        background: linear-gradient(135deg, #0B101E 0%, #1B1833 50%, #0F172A 100%);
     }
 
-    /* 數據指標 (Metric) 卡片化 */
-    div[data-testid="metric-container"] {
-        text-align: center;
-        background-color: #ffffff;
-        border: 1px solid #F3F4F6;
-        border-radius: 12px;
-        padding: 15px 0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    /* 強制修改所有文字為淺色，確保在深色背景上清晰，覆蓋 Streamlit 預設 */
+    .stApp p, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp label, .stApp span {
+        color: #F8FAFC !important;
     }
 
-    /* 核心區塊卡片化 (圓角與柔和陰影) */
+    /* 2. 區塊卡片化 (毛玻璃效果) */
     [data-testid="stVerticalBlockBorderWrapper"] {
-        border: none !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
-        border-radius: 24px !important;
-        background-color: #ffffff;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
+        backdrop-filter: blur(12px);
         padding: 10px;
     }
 
-    /* 一般按鈕的精緻化 */
+    /* 3. 數據指標 (Metric) 精緻化 */
+    div[data-testid="metric-container"] {
+        background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 15px 0;
+        text-align: center;
+    }
+    div[data-testid="metric-container"] label {
+        color: #94A3B8 !important; /* 標題稍微暗一點增加層次 */
+    }
+    div[data-testid="metric-container"] div {
+        color: #38BDF8 !important; /* 數字使用科技藍 */
+        font-weight: 800;
+    }
+
+    /* 4. 一般按鈕樣式：半透明與懸浮發光 */
     .stButton > button {
-        border-radius: 12px !important;
-        border: 1px solid #E5E7EB !important;
-        background-color: #ffffff !important;
-        color: #374151 !important;
-        font-weight: 500 !important;
-        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #E2E8F0 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease;
     }
     .stButton > button:hover {
-        border-color: #D1D5DB !important;
-        background-color: #F9FAFB !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: #38BDF8 !important;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
+        transform: translateY(-2px);
     }
 
-    /* 主按鈕 (Primary) 的現代感 */
+    /* 5. 主按鈕 (Primary) 樣式：彩色漸層 */
     .stButton > button[data-testid="baseButton-primary"] {
-        background-color: #2563EB !important; /* 柔和的科技藍 */
-        color: #ffffff !important;
+        background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%) !important;
         border: none !important;
+        color: white !important;
+        font-weight: bold;
     }
     .stButton > button[data-testid="baseButton-primary"]:hover {
-        background-color: #1D4ED8 !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.5) !important;
+        filter: brightness(1.1);
     }
 
-    /* 番茄鐘大數字排版 (乾淨俐落) */
+    /* 6. 番茄鐘大數字：漸層文字與柔和陰影 */
     .premium-timer {
         text-align: center;
-        font-size: 100px;
-        font-weight: 700;
-        color: #111827;
+        font-size: 110px;
+        font-weight: 800;
+        background: linear-gradient(to right, #38BDF8, #818CF8, #C084FC);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        letter-spacing: -2px;
-        line-height: 1.2;
+        font-family: 'Courier New', Courier, monospace;
+        letter-spacing: 2px;
+        filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.3));
     }
-    
-    /* 進度條顏色覆蓋 */
+
+    /* 7. 輸入框與進度條適配深色 */
+    .stTextInput > div > div > input, .stNumberInput > div > div > input {
+        background-color: rgba(0, 0, 0, 0.2) !important;
+        color: #E2E8F0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 8px;
+    }
+    .stTextInput > div > div > input:focus, .stNumberInput > div > div > input:focus {
+        border-color: #8B5CF6 !important;
+        box-shadow: 0 0 0 1px #8B5CF6 !important;
+    }
     .stProgress > div > div > div > div {
-        background-color: #2563EB;
-    }
-    
-    /* 輸入框圓角 */
-    .stTextInput > div > div > input {
-        border-radius: 12px;
-        border: 1px solid #E5E7EB;
+        background: linear-gradient(90deg, #38BDF8, #8B5CF6) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -158,7 +174,7 @@ with st.container(border=True):
 
     with col_timer:
         mm, ss = divmod(st.session_state.time_left, 60)
-        # 套用新的 premium-timer 樣式
+        # 換上我們特別設計的 premium-timer 樣式
         st.markdown(f"<div class='premium-timer'>{mm:02d}:{ss:02d}</div>", unsafe_allow_html=True)
         
     total_sec = input_mins * 60
@@ -217,7 +233,8 @@ with st.container(border=True):
                     st.session_state.tasks[i]['done'] = False
                     save_tasks(st.session_state.tasks)
                     st.rerun()
-                ic2.write(f"<span style='color: #888;'>{task['name']}</span>", unsafe_allow_html=True)
+                # 保留你原本設定的 #888，並透過 CSS 強制讓它在暗色背景下也能呈現灰底效果
+                ic2.write(f"<span style='color: #888 !important;'>{task['name']}</span>", unsafe_allow_html=True)
                 if ic3.button("🗑️", key=f"del_{task['id']}"):
                     st.session_state.tasks = [t for t in st.session_state.tasks if t['id'] != task['id']]
                     save_tasks(st.session_state.tasks)
