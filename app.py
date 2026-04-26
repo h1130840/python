@@ -4,7 +4,7 @@ import os
 import time
 import uuid
 
-# --- 1. 資料處理功能 ---
+# 資料處理功能
 DATA_FILE = 'tasks.json'
 
 def load_tasks():
@@ -33,18 +33,16 @@ def add_new_task():
         save_tasks(st.session_state.tasks)
         st.session_state.task_input_box = "" 
 
-# --- 2. 網頁與樣式配置 (深海極光 + 寬螢幕模式) ---
-# 注意這裡改成 layout="wide" 讓左右分欄有足夠空間
+# 網頁與樣式配置
 st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="wide")
 
 st.markdown("""
 <style>
-    /* 隱藏預設選單與頁尾 */
+    
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* 1. 整個網頁背景：深海極光漸層色 */
     .stApp {
         background: linear-gradient(135deg, #0B101E 0%, #1B1833 50%, #0F172A 100%);
     }
@@ -54,7 +52,6 @@ st.markdown("""
         color: #F8FAFC !important;
     }
 
-    /* 2. 區塊卡片化 (毛玻璃效果) */
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: rgba(255, 255, 255, 0.03) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -62,10 +59,9 @@ st.markdown("""
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
         backdrop-filter: blur(12px);
         padding: 10px;
-        height: 100%; /* 讓左右兩邊卡片高度盡量一致 */
+        height: 100%;
     }
 
-    /* 3. 數據指標 (Metric) 精緻化 */
     div[data-testid="metric-container"] {
         background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -81,7 +77,6 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* 4. 一般按鈕樣式 */
     .stButton > button {
         background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -96,7 +91,6 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
-    /* 5. 主按鈕 (Primary) 樣式 */
     .stButton > button[data-testid="baseButton-primary"] {
         background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%) !important;
         border: none !important;
@@ -108,7 +102,6 @@ st.markdown("""
         filter: brightness(1.1);
     }
 
-    /* 6. 番茄鐘大數字：因為分左右，稍微縮小一點避免破版 */
     .premium-timer {
         text-align: center;
         font-size: 90px;
@@ -122,7 +115,6 @@ st.markdown("""
         filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.3));
     }
 
-    /* 7. 輸入框與進度條適配深色 */
     .stTextInput > div > div > input, .stNumberInput > div > div > input {
         background-color: rgba(0, 0, 0, 0.2) !important;
         color: #E2E8F0 !important;
@@ -139,7 +131,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. 初始化資料 ---
+# 初始化資料
 if 'tasks' not in st.session_state:
     st.session_state.tasks = load_tasks()
 if 'time_left' not in st.session_state:
@@ -151,14 +143,9 @@ if 'task_input_box' not in st.session_state:
 
 st.title("🍅 番茄鐘專注看板")
 
-# ==========================================
-# 建立左右兩大欄位 (使用 gap="large" 讓中間有呼吸空間)
-# ==========================================
 col_left, col_right = st.columns(2, gap="large")
 
-# ==========================================
-# 左半邊：番茄鐘計時器
-# ==========================================
+# 番茄鐘計時器
 with col_left:
     with st.container(border=True):
         st.subheader("⏱️ 專注計時")
@@ -187,14 +174,19 @@ with col_left:
         total_sec = input_mins * 60
         current_progress = 1.0 - (st.session_state.time_left / total_sec) if total_sec > 0 else 0.0
         st.progress(min(max(current_progress, 0.0), 1.0))
-
-        # 為了排版美觀，若計時器這邊比較短，可以塞一點空白讓它對齊右邊的高度
         st.write("")
         st.write("")
+    if st.session_state.is_running and st.session_state.time_left > 0:
+        time.sleep(1)
+        st.session_state.time_left -= 1
+        st.rerun()
+    elif st.session_state.time_left == 0 and st.session_state.is_running:
+        st.session_state.is_running = False
+        st.balloons()
+        st.success(f"時間到！已專注 {input_mins} 分鐘。")
 
-# ==========================================
-# 右半邊：任務管理 
-# ==========================================
+
+# 任務管理 
 with col_right:
     with st.container(border=True):
         st.subheader("📝 任務管理")
@@ -248,13 +240,3 @@ with col_right:
             st.session_state.tasks = [t for t in st.session_state.tasks if not t['done']]
             save_tasks(st.session_state.tasks)
             st.rerun() 
-
-# 倒數計時邏輯維持放在最後面
-if st.session_state.is_running and st.session_state.time_left > 0:
-    time.sleep(1)
-    st.session_state.time_left -= 1
-    st.rerun()
-elif st.session_state.time_left == 0 and st.session_state.is_running:
-    st.session_state.is_running = False
-    st.balloons()
-    st.success(f"時間到！已專注 {input_mins} 分鐘。")
