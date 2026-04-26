@@ -140,6 +140,9 @@ if 'is_running' not in st.session_state:
     st.session_state.is_running = False
 if 'task_input_box' not in st.session_state:
     st.session_state.task_input_box = ""
+# 用於記錄上一次設定的分鐘數，避免暫停時被重置
+if 'prev_mins' not in st.session_state:
+    st.session_state.prev_mins = 25
 
 st.title("🍅 番茄鐘專注看板")
 
@@ -153,9 +156,13 @@ with col_left:
         col_ctrl, col_timer = st.columns([1, 2], vertical_alignment="center")
         
         with col_ctrl:
-            input_mins = st.number_input("設定分鐘", min_value=1, value=25)
-            if not st.session_state.is_running and st.session_state.time_left != input_mins * 60:
+            input_mins = st.number_input("設定分鐘", min_value=1, value=st.session_state.prev_mins)
+            
+            # 修正處：只有當使用者真正「手動修改分鐘數」時，才重置計時器時間
+            if input_mins != st.session_state.prev_mins:
                 st.session_state.time_left = input_mins * 60
+                st.session_state.prev_mins = input_mins
+                st.session_state.is_running = False
             
             c1, c2 = st.columns(2)
             if c1.button("▶️ 開始", type="primary", use_container_width=True): 
@@ -239,4 +246,4 @@ with col_right:
         if st.button("🧹 一鍵清除所有已完成任務", use_container_width=True):
             st.session_state.tasks = [t for t in st.session_state.tasks if not t['done']]
             save_tasks(st.session_state.tasks)
-            st.rerun() 
+            st.rerun()
