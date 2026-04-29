@@ -47,7 +47,6 @@ st.markdown("""
         background: linear-gradient(135deg, #0B101E 0%, #1B1833 50%, #0F172A 100%);
     }
 
-    /* 強制修改所有文字為淺色 */
     .stApp p, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp label, .stApp span {
         color: #F8FAFC !important;
     }
@@ -140,8 +139,7 @@ if 'is_running' not in st.session_state:
     st.session_state.is_running = False
 if 'task_input_box' not in st.session_state:
     st.session_state.task_input_box = ""
-# 用於記錄上一次設定的分鐘數，避免暫停時被重置
-if 'prev_mins' not in st.session_state:
+if 'prev_mins' not in st.session_state:  # 記錄上一次設定的分鐘數
     st.session_state.prev_mins = 25
 
 st.title("🍅 番茄鐘專注看板")
@@ -158,7 +156,6 @@ with col_left:
         with col_ctrl:
             input_mins = st.number_input("設定分鐘", min_value=1, value=st.session_state.prev_mins)
             
-            # 修正處：只有當使用者真正「手動修改分鐘數」時，才重置計時器時間
             if input_mins != st.session_state.prev_mins:
                 st.session_state.time_left = input_mins * 60
                 st.session_state.prev_mins = input_mins
