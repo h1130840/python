@@ -34,7 +34,7 @@ def add_new_task():
         st.session_state.task_input_box = "" 
 
 # 網頁與樣式配置
-st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="wide")
+st.set_page_config(page_title="個人化番茄鐘與任務看板", page_icon="🍅", layout="wide")
 
 st.markdown("""
 <style>
