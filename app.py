@@ -142,7 +142,7 @@ if 'task_input_box' not in st.session_state:
 if 'prev_mins' not in st.session_state:  # 記錄上一次設定的分鐘數
     st.session_state.prev_mins = 25
 
-st.title("🍅 番茄鐘專注看板")
+st.title("🍅 個人化番茄鐘與任務看板")
 
 col_left, col_right = st.columns(2, gap="large")
 
