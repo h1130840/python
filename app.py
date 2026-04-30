@@ -35,22 +35,17 @@ def add_new_task():
 
 # 網頁與樣式配置
 st.set_page_config(page_title="番茄鐘工作法", page_icon="🍅", layout="wide")
-
 st.markdown("""
 <style>
-    
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    
     .stApp {
         background: linear-gradient(135deg, #0B101E 0%, #1B1833 50%, #0F172A 100%);
     }
-
     .stApp p, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp label, .stApp span {
         color: #F8FAFC !important;
     }
-
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: rgba(255, 255, 255, 0.03) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -60,7 +55,6 @@ st.markdown("""
         padding: 10px;
         height: 100%;
     }
-
     div[data-testid="metric-container"] {
         background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.08);
